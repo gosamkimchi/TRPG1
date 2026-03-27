@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&family=Nanum+Pen+Script&family=Gowun+Batang:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Gaegu", cursive;
+  --font-hand: "Nanum Pen Script", cursive;
+  --font-serif: "Gowun Batang", serif;
+
+  --color-paper: #fdfcf0;
+  --color-pencil: #333333;
+  --color-pencil-light: #666666;
+  --color-eraser: #ffebef;
+}
+
+@layer base {
+  body {
+    @apply bg-paper text-pencil font-sans antialiased;
+    background-image: 
+      linear-gradient(90deg, rgba(200,0,0,.05) 50%, transparent 0),
+      linear-gradient(rgba(200,0,0,.05) 50%, transparent 0);
+    background-size: 30px 30px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-bold;
+  }
+}
+
+.doodle-border {
+  border: 2px solid var(--color-pencil);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+}
+
+.doodle-shadow {
+  box-shadow: 5px 5px 0px var(--color-pencil);
+}
+
+.sketch-line {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--color-pencil-light);
+}
+
+.paper-texture {
+  background-color: #fdfcf0;
+  background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+}
+
+@keyframes wiggle {
+  0% { transform: rotate(-1deg); }
+  50% { transform: rotate(1.5deg); }
+  100% { transform: rotate(-1deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 3s ease-in-out infinite;
+}
+
+.pencil-sketch {
+  filter: grayscale(1) contrast(1.2) opacity(0.7);
+}
