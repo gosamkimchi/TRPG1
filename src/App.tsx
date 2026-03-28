@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { Toaster, toast } from "sonner";
 import { 
   Sword, 
   Shield, 
@@ -396,7 +397,7 @@ const CLASS_INFO: Record<string, { name: string, desc: string, icon: React.React
   elementalist: { name: "정령사", desc: "자연의 원소 정령들과 소통하며 강력한 마법을 부리는 술사", icon: <Sparkles className="w-12 h-12" />, category: "마법 계열" },
   druid: { name: "드루이드", desc: "자연의 섭리를 따르며 동식물과 교감하는 숲의 수호자", icon: <Trees className="w-12 h-12" />, category: "마법 계열" },
   rogue: { name: "도적", desc: "그림자 속에서 기회를 노리는 날렵하고 은밀한 추적자", icon: <Ghost className="w-12 h-12" />, category: "기교 계열" },
-  bard: { name: "음유시인", desc: "노래와 연주로 아군에게 용기를, 적에게 혼란을 주는 예술가", icon: <Music className="w-12 h-12" />, category: "예능 계열" }
+  bard: { name: "음유시인", desc: "노래와 연주로 아군에게 용기를, 적에게 혼란을 주는 예술가", icon: <Music className="w-12 h-12" />, category: "기교 계열" }
 };
 
 const DIFFICULTY_INFO: Record<string, { name: string, icon: React.ReactNode, desc: string }> = {
@@ -589,7 +590,7 @@ const CLASSES: ClassCategory[] = [
   {
     category: "마법계열",
     classes: [
-      { name: "마법사", subClasses: ["정령", "사령술사", "흑마법사", "마법사"] },
+      { name: "마법사", subClasses: ["정령술사", "사령술사", "흑마법사", "마법사"] },
       { name: "드루이드", subClasses: ["야생의 드루이드", "달의 드루이드"] }
     ]
   },
@@ -597,7 +598,8 @@ const CLASSES: ClassCategory[] = [
     category: "기교계열",
     classes: [
       { name: "궁수", subClasses: ["비전궁수", "악마사냥꾼", "야수조련사", "사수"] },
-      { name: "도적", subClasses: ["도둑", "팬텀", "어쌔씬"] }
+      { name: "도적", subClasses: ["도둑", "팬텀", "어쌔씬"] },
+      { name: "음유시인", subClasses: ["검의 학파", "지식의 학파", "매혹의 학파"] }
     ]
   }
 ];
@@ -631,6 +633,22 @@ export default function App() {
   });
   const [result, setResult] = useState<QuizResult | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${label} 복사되었습니다!`, {
+        style: {
+          fontFamily: 'var(--font-hand)',
+          fontSize: '1.1rem',
+          backgroundColor: '#f5f5f0',
+          color: '#1a1a1a',
+          border: '2px solid #1a1a1a'
+        }
+      });
+    }).catch(() => {
+      toast.error("복사에 실패했습니다.");
+    });
+  };
 
   const handleAnswer = (answerScores: Question["options"][0]["scores"]) => {
     const newScores = { ...scores };
@@ -716,7 +734,7 @@ export default function App() {
     setCopied(false);
   };
 
-  const copyToClipboard = () => {
+  const copyQuizResult = () => {
     if (!result) return;
     const info = CLASS_INFO[result.className];
     const diff = DIFFICULTY_INFO[result.difficulty];
@@ -866,7 +884,7 @@ export default function App() {
                 
                 <div className="p-8 border-4 border-double border-pencil rounded-lg bg-paper/30 mb-8 relative">
                   <button 
-                    onClick={copyToClipboard}
+                    onClick={copyQuizResult}
                     className="absolute top-4 right-4 p-2 doodle-border bg-white hover:bg-eraser transition-colors flex items-center gap-2 font-hand"
                   >
                     {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
@@ -1161,9 +1179,37 @@ export default function App() {
                                 transition={{ delay: idx * 0.05 }}
                                 className="p-4 border-2 border-pencil/10 rounded-lg bg-white/50 hover:bg-white transition-colors doodle-shadow-sm"
                               >
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Sparkles className="w-4 h-4 text-pencil/40" />
-                                  <h4 className="text-xl font-hand text-pencil">{spell.name}</h4>
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4 text-pencil/40" />
+                                    <h4 className="text-xl font-hand text-pencil">{spell.name}</h4>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <button 
+                                      onClick={() => copyToClipboard(spell.name, "이름이")}
+                                      className="px-2 py-0.5 text-[10px] font-hand border border-pencil/20 rounded hover:bg-pencil hover:text-white transition-colors"
+                                      title="이름 복사"
+                                    >
+                                      이름 복사
+                                    </button>
+                                    <button 
+                                      onClick={() => copyToClipboard(spell.desc, "내용이")}
+                                      className="px-2 py-0.5 text-[10px] font-hand border border-pencil/20 rounded hover:bg-pencil hover:text-white transition-colors"
+                                      title="내용 복사"
+                                    >
+                                      내용 복사
+                                    </button>
+                                    <button 
+                                      onClick={() => {
+                                        const fullText = `[${spell.name}]\n${spell.damage ? `데미지: ${spell.damage}\n` : ''}${spell.desc}`;
+                                        copyToClipboard(fullText, "전체 내용이");
+                                      }}
+                                      className="px-2 py-0.5 text-[10px] font-hand border border-pencil/20 rounded hover:bg-pencil hover:text-white transition-colors"
+                                      title="전체 복사"
+                                    >
+                                      전체 복사
+                                    </button>
+                                  </div>
                                 </div>
                                 {spell.damage && (
                                   <p className="font-hand text-sm text-red-800/60 mb-1">
@@ -1395,6 +1441,7 @@ export default function App() {
           <div className="font-hand text-lg opacity-60">© 2022 공책 TRPG. All rights reserved.</div>
         </div>
       </footer>
+      <Toaster position="bottom-center" />
     </div>
   );
 }
